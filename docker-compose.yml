@@ -1,6 +1,7 @@
 services:
   redis-master:
-    image: redis:7
+    # image: redis:7
+    image: redis/redis-stack-server:latest
     ports:
     - "6379:6379"
     volumes:
@@ -8,7 +9,8 @@ services:
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
 
   redis-replica:
-    image: redis:7
+    # image: redis:7
+    image: redis/redis-stack-server:latest
     depends_on:
       - redis-master
     ports:
@@ -18,9 +20,11 @@ services:
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
 
   sentinel1:
-    image: redis:7
+    # image: redis:7
+    image: redis/redis-stack-server:latest
     depends_on:
       - redis-master
+      - redis-replica
     ports:
       - "26379:26379"
     volumes:
@@ -28,29 +32,33 @@ services:
     command: ["redis-server", "/data/sentinel.conf", "--sentinel"]
 
   sentinel2:
-    image: redis:7
+    # image: redis:7
+    image: redis/redis-stack-server:latest
     depends_on:
       - redis-master
+      - redis-replica
     ports:
       - "26380:26379"
     volumes:
       - ./sentinel2.conf:/data/sentinel.conf
-      # - ./sentinel/s2/data:/data
     command: ["redis-server", "/data/sentinel.conf", "--sentinel"]
 
   sentinel3:
-    image: redis:7
+    # image: redis:7
+    image: redis/redis-stack-server:latest
     depends_on:
       - redis-master
+      - redis-replica
     ports:
       - "26381:26379"
     volumes:
       - ./sentinel3.conf:/data/sentinel.conf
     command: ["redis-server", "/data/sentinel.conf", "--sentinel"]
 
-  # enter `sentinel1` to the address instead of 127.0.0.1 connect to sentinel
   redis-insight:
     image: redis/redisinsight:latest
     ports:
       - "5540:5540"
-    restart: unless-stopped
+    environment:
+      RI_REDIS_HOST: "redis-master"
+  
