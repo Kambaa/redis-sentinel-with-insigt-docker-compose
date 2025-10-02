@@ -30,6 +30,8 @@ services:
     volumes:
       - ./sentinel1.conf:/data/sentinel.conf
     command: ["redis-server", "/data/sentinel.conf", "--sentinel"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   sentinel2:
     # image: redis:7
@@ -42,6 +44,8 @@ services:
     volumes:
       - ./sentinel2.conf:/data/sentinel.conf
     command: ["redis-server", "/data/sentinel.conf", "--sentinel"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   sentinel3:
     # image: redis:7
@@ -54,6 +58,8 @@ services:
     volumes:
       - ./sentinel3.conf:/data/sentinel.conf
     command: ["redis-server", "/data/sentinel.conf", "--sentinel"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   redis-insight:
     image: redis/redisinsight:latest
@@ -61,4 +67,4 @@ services:
       - "5540:5540"
     environment:
       RI_REDIS_HOST: "redis-master"
-  
+      RI_REDIS_PASSWORD: "changeme"
